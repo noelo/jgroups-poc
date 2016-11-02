@@ -15,7 +15,7 @@ public class Launcher {
         Main main = new Main();
         CamelContext context = new DefaultCamelContext();
         JGroupsComponent myJgroups = new JGroupsComponent();
-        Channel myChannel = new JChannel("kube-udp-test.xml");
+        Channel myChannel = new JChannel("kube-tcp-test.xml");
         myJgroups.setChannel(myChannel);
         
         context.addComponent("pocjgroups", myJgroups);
