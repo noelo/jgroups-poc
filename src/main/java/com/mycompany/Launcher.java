@@ -19,8 +19,10 @@ public class Launcher {
         myJgroups.setChannel(myChannel);
         
         context.addComponent("pocjgroups", myJgroups);
-        context.addRoutes(new CamelRouteConsumer());
-        context.addRoutes(new CamelRouteEmitter());
+//        context.addRoutes(new CamelRouteConsumer());
+//        context.addRoutes(new CamelRouteEmitter());
+        context.addRoutes(new CamelHASingletonRoute());
+        context.addRoutes(new JGroupsMasterRoute());
         context.start();	
         main.run(args);
     }
