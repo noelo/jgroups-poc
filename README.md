@@ -1,22 +1,48 @@
-Simple POC to get JGroups running in Camel on OSE.
+## Simple POC to get JGroups running in Camel on Openshift.
+
+Kube_ping is used to discover other pods in the namepspace. HA singleton route activation is done only on the master node.
+
+S2I builds and base runtime is provided by fabric8 java s2i images https://github.com/fabric8io-images/s2i/tree/master/java
+
+To deploy on openshift
+
+* Build the app
+```
+oc new-app fabric8/s2i-java https://github.com/noelo/jgroups-poc.git
+```
+
+* Add the port for kube_ping to connect to by default this is 8888
+```
+    spec:
+      containers:
+        ports:
+        - containerPort: 8778
+          protocol: TCP
+        - containerPort: 8888
+          protocol: TCP
+```
 
 
-Camel Project for Java 
-=========================================
+* Add the view permissions to the default SA
+```
+oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)
+```
 
-To build this project use
+* Add the IPV4 stack for JGroups
+```
+oc env dc/jgpoc JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true
+```
 
-    mvn install
+* Add the OPENSHIFT_KUBE_PING_NAMESPACE environment variable via the downward API
+```
+oc edit dc jgpoc
 
-To run the project you can execute the following Maven goal
-
-    mvn exec:java
-
-To deploy the project in OSGi. For example using Apache Karaf.
-You can run the following command from its shell:
-
-    osgi:install -s mvn:com.mycompany/camel-java/1.0.0-SNAPSHOT
-
-For more help see the Apache Camel documentation
-
-    http://camel.apache.org/
+    spec:
+      containers:
+      - env:
+        - name: OPENSHIFT_KUBE_PING_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+```              
