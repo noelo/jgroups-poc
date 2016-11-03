@@ -20,8 +20,14 @@ oc new-app fabric8/s2i-java https://github.com/noelo/jgroups-poc.git
           protocol: TCP
         - containerPort: 8888
           protocol: TCP
+        - containerPort: 8080
+          protocol: TCP
 ```
 
+* Expose the http route
+```
+oc expose dc jgpoc --port=8080
+```
 
 * Add the view permissions to the default SA
 ```
@@ -45,4 +51,9 @@ oc edit dc jgpoc
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-```              
+```
+
+* Point a browser to the route 
+```
+http://route.namespace.osehost.com/whodat
+```
